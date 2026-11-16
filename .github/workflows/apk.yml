@@ -1,0 +1,17 @@
+name: Construir APK
+on: { push: { branches: [main] }, workflow_dispatch: {} }
+permissions: { contents: write }
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: unzip -q mitv.zip
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: 8.9 }
+      - run: gradle -p mi-tv/android assembleRelease
+      - run: cp mi-tv/android/app/build/outputs/apk/release/app-release.apk MiTV-Deportes.apk
+      - uses: softprops/action-gh-release@v2
+        with: { tag_name: apk-latest, files: MiTV-Deportes.apk }
